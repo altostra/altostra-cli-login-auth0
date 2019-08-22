@@ -4,6 +4,9 @@
   "description": "A library that abstracts and automates the process of logging in with Auth0 from CLI",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "ts-node test/manual.test.ts"
@@ -14,7 +17,7 @@
     "login",
     "cli"
   ],
-  "author": "Altostra, Inc",
+  "author": "Altostra, Inc <oss@altostra.com>",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/altostra/altostra-auth0-cli-login"

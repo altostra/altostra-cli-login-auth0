@@ -15,10 +15,10 @@ The method returns a promise object that resolves to a `JsonToken` object. `Json
 The class takes as parameter the configuration of your Auth0 application details as well as some additional parameters required for the library to work.
 
 ### Auth0 Application Details
-- auth0Domain
-- auth0ClientId
-- auth0TokenScope
-- auth0TokenAudience
+- `auth0Domain`
+- `auth0ClientId`
+- `auth0TokenScope`
+- `auth0TokenAudience`
 
 You can find these values in the your Auth0 application details in the Auth0 management website.
 

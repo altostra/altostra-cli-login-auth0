@@ -1,0 +1,33 @@
+{
+  "defaultSeverity": "warning",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**",
+      "lib/**",
+      "**/*.spec.ts"
+    ]
+  },
+  "rules": {
+    "no-empty": false,
+    "eofline": false,
+    "quotemark": [true, "single"],
+    "no-console": false,
+    "no-var-requires": false,
+    "member-ordering": false,
+    "indent": [true, "spaces", 2],
+    "interface-name": false,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-consecutive-blank-lines": false,
+    "prefer-const": false,
+    "semicolon": false,
+    "trailing-comma": false,
+    "no-trailing-whitespace": false,
+    "interface-over-type-literal": false,
+    "arrow-parens": false,
+    "max-line-length": [true, 180]
+  }
+}

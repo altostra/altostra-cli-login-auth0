@@ -1,6 +1,6 @@
 {
   "name": "@altostra/cli-login-auth0",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A library that abstracts and automates the process of logging in with Auth0 from CLI",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

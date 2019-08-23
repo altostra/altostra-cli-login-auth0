@@ -1,4 +1,4 @@
-# Altostra Auth0 login for CLI
+# CLI login with Auth0
 
 A library that abstracts and automates the process of logging in with Auth0 from CLI.
 

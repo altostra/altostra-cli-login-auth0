@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import open from 'open'
 import request from 'request'
-import AltostraError from './AltostraError'
+import ExtendedError from './ExtendedError'
 import {
   isNonEmptyString, 
   Deferred,
@@ -51,15 +51,15 @@ class Auth0LoginProcessor {
   constructor(
     public readonly config: Config
   ) {
-    if (typeof config !== 'object') { throw new AltostraError(`Config is required.`) }
-    if (typeof config.port !== 'number' || config.port < 1 || config.port > 65535) { throw new AltostraError(`Invalid port number in config.`) }
-    if (typeof config.timeout !== 'number' || config.timeout < 0) { throw new AltostraError(`Invalid timeout value.`) }
-    if (typeof config.auth0Domain !== 'string') { throw new AltostraError(`Invalid auth0Domain string.`) }
-    if (typeof config.auth0ClientId !== 'string') { throw new AltostraError(`Invalid auth0ClientId string.`) }
-    if (typeof config.auth0TokenScope !== 'string') { throw new AltostraError(`Invalid auth0TokenScope string.`) }
-    if (typeof config.auth0TokenAudience !== 'string') { throw new AltostraError(`Invalid auth0TokenAudience string.`) }
-    if (typeof config.successfulLoginHtmlFile !== 'string') { throw new AltostraError(`Invalid successfulLoginHtmlFile path.`)}
-    if (typeof config.failedLoginHtmlFile !== 'string') { throw new AltostraError(`Invalid failedLoginHtmlFile path.`)}
+    if (typeof config !== 'object') { throw new Error(`Config is required.`) }
+    if (typeof config.port !== 'number' || config.port < 1 || config.port > 65535) { throw new Error(`Invalid port number in config.`) }
+    if (typeof config.timeout !== 'number' || config.timeout < 0) { throw new Error(`Invalid timeout value.`) }
+    if (typeof config.auth0Domain !== 'string') { throw new Error(`Invalid auth0Domain string.`) }
+    if (typeof config.auth0ClientId !== 'string') { throw new Error(`Invalid auth0ClientId string.`) }
+    if (typeof config.auth0TokenScope !== 'string') { throw new Error(`Invalid auth0TokenScope string.`) }
+    if (typeof config.auth0TokenAudience !== 'string') { throw new Error(`Invalid auth0TokenAudience string.`) }
+    if (typeof config.successfulLoginHtmlFile !== 'string') { throw new Error(`Invalid successfulLoginHtmlFile path.`)}
+    if (typeof config.failedLoginHtmlFile !== 'string') { throw new Error(`Invalid failedLoginHtmlFile path.`)}
   }
 
   public async runLoginProcess(): Promise<JsonToken> {
@@ -75,11 +75,11 @@ class Auth0LoginProcessor {
     try {
       await open(authenticationUrl)
     } catch (err) {
-      throw new AltostraError('Failed to open authentication URL. See inner error for details.', err)
+      throw new ExtendedError('Failed to open authentication URL. See inner error for details.', err)
     }
 
     const loginTimeout = startTimeout<AuthResponse>(this.config.timeout)
-    const auth0Response = this.authResponse.promise.catch((err) => { throw new AltostraError(`Authentication failed`, err) })
+    const auth0Response = this.authResponse.promise.catch((err) => { throw new ExtendedError(`Authentication failed`, err) })
     const timeoutExpiration = loginTimeout.promise.catch(() => { throw new Error(`Authentication process timed out.`) })
 
     try {
@@ -107,18 +107,18 @@ class Auth0LoginProcessor {
 
       request.post(requestParams, (err, response, body) => {
         if (err || response.statusCode !== 200) {
-          return reject(new AltostraError('Failed to get an access token. See inner error for details.', err))
+          return reject(new ExtendedError('Failed to get an access token. See inner error for details.', err))
         }
   
         try {
           const data = JSON.parse(body)
           if (!data || typeof data.access_token !== 'string' || data.token_type !== 'Bearer') {
-            reject(new AltostraError('Invalid token data detected in response from server.'))
+            reject(new Error('Invalid token data detected in response from server.'))
           }
   
           resolve({ token: data.access_token })
         } catch (err) {
-          reject(new AltostraError('Unable to parse tokens for unknown reason. See inner error for details.', err))
+          reject(new ExtendedError('Unable to parse tokens for unknown reason. See inner error for details.', err))
         }
       })
     })
@@ -130,7 +130,7 @@ class Auth0LoginProcessor {
     return new Promise((resolve, reject) => {
       this.server.listen(this.config.port, (err?: Error) => {
         if (err) {
-          return reject(new AltostraError(`Unable to start an HTTP server on port ${this.config.port}. See inner error for details.`, err))
+          return reject(new ExtendedError(`Unable to start an HTTP server on port ${this.config.port}. See inner error for details.`, err))
         }
   
         resolve()
@@ -144,7 +144,7 @@ class Auth0LoginProcessor {
     try {
       this.server.close()
     } catch (err) {
-      throw new AltostraError('Failed to stop HTTP server. See inner error for details.', err)
+      throw new ExtendedError('Failed to stop HTTP server. See inner error for details.', err)
     }
   }
 

@@ -20,7 +20,10 @@ export
 type AuthResponse = { code: string }
 
 export
-type JsonToken = { token: string }
+type TokenResponse = {
+  access_token: string;
+  refresh_token: string;
+}
 
 export 
 type OpenUrlCallback = (url: string) => Promise<unknown>
@@ -62,7 +65,7 @@ class Auth0LoginProcessor {
     if (typeof config.failedLoginHtmlFile !== 'string') { throw new Error(`Invalid failedLoginHtmlFile path.`)}
   }
 
-  public async runLoginProcess(): Promise<JsonToken> {
+  public async runLoginProcess(): Promise<TokenResponse> {
     this.codeVerifier = encodeBase64(genRandom(32))
     this.csrfToken = genRandomString(16)
     this.authResponse = mkDeferred()
@@ -91,7 +94,7 @@ class Auth0LoginProcessor {
     }
   }
 
-  private async getToken(codeVerifier: string, code: string): Promise<JsonToken> {
+  private async getToken(codeVerifier: string, code: string): Promise<TokenResponse> {
     return new Promise((resolve, reject) => {
       const requestParams = {
         url: `https://${this.config.auth0Domain}/oauth/token`,
@@ -116,7 +119,7 @@ class Auth0LoginProcessor {
             reject(new Error('Invalid token data detected in response from server.'))
           }
   
-          resolve({ token: data.access_token })
+          resolve(data)
         } catch (err) {
           reject(new ExtendedError('Unable to parse tokens for unknown reason. See inner error for details.', err))
         }

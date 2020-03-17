@@ -1,13 +1,13 @@
 import { isObject } from './utils'
 
-export type DataExtractor<Token> = (value: unknown) => Token
+export type DataExtractor<T> = (value: unknown) => T
 export type OpenUrlCallback = (url: string) => Promise<unknown>
 
 export interface AccessToken {
   access_token: string
 }
 
-export function accessTokenParser(value: unknown): AccessToken {
+export function tryGetAccessToken(value: unknown): AccessToken {
   if (
     isObject(value) &&
     typeof value.access_token === 'string' &&
@@ -25,7 +25,7 @@ export interface RefreshToken {
   refresh_token: string
 }
 
-export function refreshTokenParser(value: unknown): RefreshToken {
+export function tryGetRefreshToken(value: unknown): RefreshToken {
   if (
     isObject(value) &&
     typeof value.refresh_token === 'string' &&
@@ -41,9 +41,9 @@ export function refreshTokenParser(value: unknown): RefreshToken {
 
 export type ComboToken = AccessToken & RefreshToken
 
-export function comboTokenParser(value: unknown): ComboToken {
+export function tryGetComboToken(value: unknown): ComboToken {
   return {
-    ...accessTokenParser(value),
-    ...refreshTokenParser(value)
+    ...tryGetAccessToken(value),
+    ...tryGetRefreshToken(value)
   }
 }

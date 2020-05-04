@@ -19,7 +19,7 @@ import url from 'url'
 
 type AuthResponse = { code: string }
 
-export type Config = {
+export interface Config {
   timeout: number
   port: number
   auth0Domain: string

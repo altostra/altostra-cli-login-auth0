@@ -25,14 +25,14 @@
     "url": "https://github.com/altostra/altostra-cli-login-auth0"
   },
   "devDependencies": {
-    "@types/node": "^12.7.2",
-    "@types/request": "^2.48.2",
-    "rimraf": "^3.0.0",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.5.3"
+    "@types/node": "^12.12.38",
+    "@types/request": "^2.48.4",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "open": "^6.4.0",
-    "request": "^2.88.0"
+    "open": "^7.0.3",
+    "request": "^2.88.2"
   }
 }

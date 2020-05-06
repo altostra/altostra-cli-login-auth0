@@ -1,5 +1,5 @@
 import { Auth0LoginProcessor } from '../src/Auth0LoginProcessor'
-import { tryGetAccessToken, tryGetComboToken, tryGetRefreshToken } from '../src/Types'
+import { tryGetAccessToken, tryGetComboToken, tryGetRefreshToken } from '../src/DataExtractors'
 import path from 'path'
 
 const sut = new Auth0LoginProcessor({

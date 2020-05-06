@@ -1,32 +1,25 @@
-import http from 'http'
-import url from 'url'
-import fs from 'fs'
-import path from 'path'
-import open from 'open'
-import request from 'request'
 import ExtendedError from './ExtendedError'
+import { DataExtractor } from './Types'
 import {
-  isNonEmptyString, 
   Deferred,
-  mkDeferred,
   encodeBase64,
   genRandom,
   genRandomString,
+  isNonEmptyString,
+  mkDeferred,
   sha256,
   startTimeout
 } from './utils'
+import fs from 'fs'
+import http from 'http'
+import open from 'open'
+import path from 'path'
+import request from 'request'
+import url from 'url'
 
-export 
 type AuthResponse = { code: string }
 
-export
-type JsonToken = { token: string }
-
-export 
-type OpenUrlCallback = (url: string) => Promise<unknown>
-
-export
-type Config = {
+export interface Config {
   timeout: number
   port: number
   auth0Domain: string
@@ -41,15 +34,15 @@ type Config = {
  * At the end of the authentication process, that did not time out, it might take a couple of seconds
  * for the NodeJS HTTP server to close.
  */
-export
-class Auth0LoginProcessor {
+export class Auth0LoginProcessor<TToken> {
   private readonly server: http.Server = http.createServer(this.handleAuth0Response.bind(this))
   private csrfToken: string = ''
   private codeVerifier: string = ''
   private authResponse: Deferred<AuthResponse> = mkDeferred()
-  
+
   constructor(
-    public readonly config: Config
+    public readonly config: Config,
+    public readonly parseToken: DataExtractor<TToken>
   ) {
     if (typeof config !== 'object') { throw new Error(`Config is required.`) }
     if (typeof config.port !== 'number' || config.port < 1 || config.port > 65535) { throw new Error(`Invalid port number in config.`) }
@@ -58,11 +51,11 @@ class Auth0LoginProcessor {
     if (typeof config.auth0ClientId !== 'string') { throw new Error(`Invalid auth0ClientId string.`) }
     if (typeof config.auth0TokenScope !== 'string') { throw new Error(`Invalid auth0TokenScope string.`) }
     if (typeof config.auth0TokenAudience !== 'string') { throw new Error(`Invalid auth0TokenAudience string.`) }
-    if (typeof config.successfulLoginHtmlFile !== 'string') { throw new Error(`Invalid successfulLoginHtmlFile path.`)}
-    if (typeof config.failedLoginHtmlFile !== 'string') { throw new Error(`Invalid failedLoginHtmlFile path.`)}
+    if (typeof config.successfulLoginHtmlFile !== 'string') { throw new Error(`Invalid successfulLoginHtmlFile path.`) }
+    if (typeof config.failedLoginHtmlFile !== 'string') { throw new Error(`Invalid failedLoginHtmlFile path.`) }
   }
 
-  public async runLoginProcess(): Promise<JsonToken> {
+  public async runLoginProcess(): Promise<TToken> {
     this.codeVerifier = encodeBase64(genRandom(32))
     this.csrfToken = genRandomString(16)
     this.authResponse = mkDeferred()
@@ -91,7 +84,7 @@ class Auth0LoginProcessor {
     }
   }
 
-  private async getToken(codeVerifier: string, code: string): Promise<JsonToken> {
+  private async getToken(codeVerifier: string, code: string): Promise<TToken> {
     return new Promise((resolve, reject) => {
       const requestParams = {
         url: `https://${this.config.auth0Domain}/oauth/token`,
@@ -109,14 +102,12 @@ class Auth0LoginProcessor {
         if (err || response.statusCode !== 200) {
           return reject(new ExtendedError('Failed to get an access token. See inner error for details.', err))
         }
-  
+
         try {
           const data = JSON.parse(body)
-          if (!data || typeof data.access_token !== 'string' || data.token_type !== 'Bearer') {
-            reject(new Error('Invalid token data detected in response from server.'))
-          }
-  
-          resolve({ token: data.access_token })
+          const token = this.parseToken(data)
+
+          resolve(token)
         } catch (err) {
           reject(new ExtendedError('Unable to parse tokens for unknown reason. See inner error for details.', err))
         }
@@ -132,7 +123,7 @@ class Auth0LoginProcessor {
         if (err) {
           return reject(new ExtendedError(`Unable to start an HTTP server on port ${this.config.port}. See inner error for details.`, err))
         }
-  
+
         resolve()
       })
     })
@@ -156,7 +147,7 @@ class Auth0LoginProcessor {
       res.write(fs.readFileSync(path.resolve(this.config.successfulLoginHtmlFile)))
       this.authResponse.resolve({ code })
     } else {
-      const formattedMessage = message === "access_denied" ? "Access Denied" : message;
+      const formattedMessage = message === "access_denied" ? "Access Denied" : message
 
       res.write(fs.readFileSync(path.resolve(this.config.failedLoginHtmlFile)))
       this.authResponse.reject({ message: formattedMessage })

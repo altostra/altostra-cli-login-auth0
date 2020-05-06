@@ -77,3 +77,10 @@ function startTimeout<T = unknown>(duration: number): Timeout<T> {
     promise
   }
 }
+
+export type Key = keyof any
+
+export function isObject(val: unknown): val is Record<Key, unknown> {
+  return !!val &&
+    (typeof val === 'object' || typeof val === 'function')
+}

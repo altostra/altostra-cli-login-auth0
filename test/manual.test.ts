@@ -1,5 +1,5 @@
 import { Auth0LoginProcessor } from '../src/Auth0LoginProcessor'
-import { accessTokenParser, comboTokenParser, refreshTokenParser } from '../src/Types'
+import { tryGetAccessToken, tryGetComboToken, tryGetRefreshToken } from '../src/DataExtractors'
 import path from 'path'
 
 const sut = new Auth0LoginProcessor({
@@ -11,7 +11,7 @@ const sut = new Auth0LoginProcessor({
   timeout: 30000,
   successfulLoginHtmlFile: path.resolve(__dirname, 'success.html'),
   failedLoginHtmlFile: path.resolve(__dirname, 'failure.html')
-}, accessTokenParser)
+}, tryGetAccessToken)
 
 async function test() {
   const result = await sut.runLoginProcess()

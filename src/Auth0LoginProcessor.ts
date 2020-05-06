@@ -17,7 +17,9 @@ import path from 'path'
 import request from 'request'
 import url from 'url'
 
-type AuthResponse = { code: string }
+interface AuthResponse {
+  code: string
+}
 
 export interface Config {
   timeout: number
